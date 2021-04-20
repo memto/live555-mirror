@@ -1,0 +1,49 @@
+ifneq ($(NV_PREFIX),)
+PREFIX = $(NV_PREFIX)
+LIBDIR = $(PREFIX)/lib
+endif
+
+ifeq ($(NV_TOOLCHAIN_DIR),)
+$(error Please specify the NV_TOOLCHAIN_DIR if you are cross-compiling. \
+	ex: Download from this: https://developer.nvidia.com/embedded/linux-tegra)
+endif
+
+ifeq ($(NV_TARGET_ROOTFS),)
+$(error Please specify the NV_TARGET_ROOTFS if you are cross-compiling. \
+	ex: Copy/rsync(etc, lib, usr) from jetson kit)
+endif
+
+TOOLCHAIN_DIR = $(NV_TOOLCHAIN_DIR)
+TARGET_ROOTFS = $(NV_TARGET_ROOTFS)
+
+TEGRA_ARMABI ?= aarch64-linux-gnu
+
+CROSS_COMPILE ?=		$(TOOLCHAIN_DIR)/bin/aarch64-linux-gnu-
+COMPILE_OPTS = \
+--sysroot=$(TARGET_ROOTFS) \
+$(INCLUDES) -I. -O2 -DSOCKLEN_T=socklen_t -DNO_SSTREAM=1 -D_LARGEFILE_SOURCE=1 -D_FILE_OFFSET_BITS=64
+
+C =			c
+C_COMPILER =		$(CROSS_COMPILE)gcc
+C_FLAGS =		$(COMPILE_OPTS)
+CPP =			cpp
+CPLUSPLUS_COMPILER =	$(CROSS_COMPILE)g++
+CPLUSPLUS_FLAGS =	$(COMPILE_OPTS) -Wall -DBSD=1
+OBJ =			o
+LINK =			$(CROSS_COMPILE)g++ -o
+LINK_OPTS =		
+CONSOLE_LINK_OPTS =	$(LINK_OPTS)
+LIBRARY_LINK =		$(CROSS_COMPILE)ar cr 
+LIBRARY_LINK_OPTS =	$(LINK_OPTS)
+LIB_SUFFIX =			a
+# https://www.programmersought.com/article/22483412237/
+# https://stackoverflow.com/questions/49138195/whats-the-difference-between-rpath-link-and-l
+# https://amir.rachum.com/blog/2016/09/17/shared-libraries/
+LIBS_FOR_CONSOLE_APPLICATION = \
+	--sysroot=$(TARGET_ROOTFS) \
+	-Wl,-rpath-link=$(TARGET_ROOTFS)/lib/$(TEGRA_ARMABI) \
+	-Wl,-rpath-link=$(TARGET_ROOTFS)/usr/lib/$(TEGRA_ARMABI) \
+	-Wl,-rpath-link=$(TARGET_ROOTFS)/usr/lib/$(TEGRA_ARMABI)/tegra \
+	-lssl -lcrypto
+LIBS_FOR_GUI_APPLICATION =
+EXE =
