@@ -1,2 +1,14 @@
 For documentation and instructions for building this software,
 see <http://www.live555.com/liveMedia/>
+
+#### Info:
+LIVEMEDIA_LIBRARY_VERSION_STRING "2021.04.06"
+MEDIA_SERVER_VERSION_STRING "1.09"
+
+#### Update
+- add config (config.nvidia-jetson) to cross compile for Nvidia Jetson (tested with Xavier NX devkit). Custom with below variables
+```
+NV_PREFIX (optional) => path to install
+NV_TOOLCHAIN_DIR (mandatory) => path to toolchain, ex: Download from this: https://developer.nvidia.com/embedded/linux-tegra
+NV_TARGET_ROOTFS (mandatory) => path to Jetson rootfs, copy/rsync(etc, lib, usr) from jetson kit
+```
