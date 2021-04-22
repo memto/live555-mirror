@@ -94,8 +94,10 @@ ByteStreamFileSource::~ByteStreamFileSource() {
 
 void ByteStreamFileSource::doGetNextFrame() {
   if (feof(fFid) || ferror(fFid) || (fLimitNumBytesToStream && fNumBytesToStream == 0)) {
-    handleClosure();
-    return;
+    // handleClosure();
+    // return;
+
+    fseek(fFid, 0, SEEK_SET);
   }
 
 #ifdef READ_FROM_FILES_SYNCHRONOUSLY
