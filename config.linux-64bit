@@ -1,3 +1,8 @@
+ifneq ($(CUSTOM_PREFIX),)
+PREFIX = $(CUSTOM_PREFIX)
+LIBDIR = $(PREFIX)/lib
+endif
+
 COMPILE_OPTS =		$(INCLUDES) -m64  -fPIC -I/usr/local/include -I. -O2 -DSOCKLEN_T=socklen_t -D_LARGEFILE_SOURCE=1 -D_FILE_OFFSET_BITS=64
 C =			c
 C_COMPILER =		cc
