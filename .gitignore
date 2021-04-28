@@ -1,6 +1,7 @@
 Makefile
 *.o
 *.a
+*.pri
 
 hlsProxy/live555HLSProxy
 mediaServer/live555MediaServer
