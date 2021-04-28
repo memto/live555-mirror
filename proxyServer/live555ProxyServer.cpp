@@ -58,7 +58,7 @@ void usage() {
 int main(int argc, char** argv) {
   // Increase the maximum size of video frames that we can 'proxy' without truncation.
   // (Such frames are unreasonably large; the back-end servers should really not be sending frames this large!)
-  OutPacketBuffer::maxSize = 100000; // bytes
+  OutPacketBuffer::maxSize = 500000; // bytes
 
   // Begin by setting up our usage environment:
   TaskScheduler* scheduler = BasicTaskScheduler::createNew();
@@ -98,12 +98,11 @@ int main(int argc, char** argv) {
     case 'T': {
       // stream RTP and RTCP over a HTTP connection
       if (argc > 2 && argv[2][0] != '-') {
-	// The next argument is the HTTP server port number:                                                                       
-	if (sscanf(argv[2], "%hu", &tunnelOverHTTPPortNum) == 1
-	    && tunnelOverHTTPPortNum > 0) {
-	  ++argv; --argc;
-	  break;
-	}
+      	// The next argument is the HTTP server port number:                                                                       
+      	if (sscanf(argv[2], "%hu", &tunnelOverHTTPPortNum) == 1 && tunnelOverHTTPPortNum > 0) {
+      	  ++argv; --argc;
+      	  break;
+      	}
       }
 
       // If we get here, the option was specified incorrectly:
@@ -115,8 +114,7 @@ int main(int argc, char** argv) {
       // specify a rtsp server port number 
       if (argc > 2 && argv[2][0] != '-') {
         // The next argument is the rtsp server port number:
-        if (sscanf(argv[2], "%hu", &rtspServerPortNum) == 1
-            && rtspServerPortNum > 0) {
+        if (sscanf(argv[2], "%hu", &rtspServerPortNum) == 1 && rtspServerPortNum > 0) {
           ++argv; --argc;
           break;
         }
@@ -159,12 +157,15 @@ int main(int argc, char** argv) {
 
     ++argv; --argc;
   }
+  
   if (argc < 2 && !proxyREGISTERRequests) usage(); // there must be at least one URL at the end 
+  
   // Make sure that the remaining arguments appear to be "rtsp://" (or "rtsps://") URLs:
   int i;
   for (i = 1; i < argc; ++i) {
     if (strncmp(argv[i], "rtsp://", 7) != 0 && strncmp(argv[i], "rtsps://", 8) != 0) usage();
   }
+  
   // Do some additional checking for invalid command-line argument combinations:
   if (authDBForREGISTER != NULL && !proxyREGISTERRequests) {
     *env << "The '-U <username-for-REGISTER> <password-for-REGISTER>' option can be used only with -R\n";
@@ -200,10 +201,12 @@ int main(int argc, char** argv) {
       rtspServer = createRTSPServer(rtspServerPortNum);
     }
   }
+
   if (rtspServer == NULL) {
     rtspServerPortNum = 8554;
     rtspServer = createRTSPServer(rtspServerPortNum);
   }
+  
   if (rtspServer == NULL) {
     *env << "Failed to create RTSP server: " << env->getResultMsg() << "\n";
     exit(1);
@@ -218,10 +221,7 @@ int main(int argc, char** argv) {
     } else {
       sprintf(streamName, "proxyStream-%d", i); // there's more than one stream; distinguish them by name
     }
-    ServerMediaSession* sms
-      = ProxyServerMediaSession::createNew(*env, rtspServer,
-					   proxiedStreamURL, streamName,
-					   username, password, tunnelOverHTTPPortNum, verbosityLevel);
+    ServerMediaSession* sms = ProxyServerMediaSession::createNew(*env, rtspServer, proxiedStreamURL, streamName, username, password, tunnelOverHTTPPortNum, verbosityLevel);
     rtspServer->addServerMediaSession(sms);
 
     char* proxyStreamURL = rtspServer->rtspURL(sms);
